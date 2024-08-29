@@ -14,31 +14,34 @@ void printBN(char * msg, BIGNUM * a)
 
 int main ()
 {
+	// Setup; the variables needed
 	BN_CTX *ctx = BN_CTX_new();
 
-	BIGNUM *p = BN_new();
-	BN_hex2bn(&p,"F7E75FDC469067FFDC4E847C51F452DF");
-	BIGNUM *q = BN_new();
-	BN_hex2bn(&q,"E85CED54AF57E53E092113E62F436F4F");
-	BIGNUM *e = BN_new();
-	BN_hex2bn(&e,"0D88C3");
 	BIGNUM *n = BN_new();
-	BN_mul(n, p, q, ctx);
-
-	BIGNUM *phiN = BN_new();
-	BIGNUM *p2 = BN_new();
-	BIGNUM *q2 = BN_new();
-	BIGNUM *a = BN_new();
-	BN_dec2bn(&a, "1");
-	BN_sub(p2, p, a);
-	BN_sub(q2, q, a);
-	BN_mul(phiN, p2, q2, ctx);
-
-	// The formula for the private key is d ≡ e^(−1) (mod phi(n))
+	BN_hex2bn(&n,"DCBFFE3E51F62E09CE7032E2677A78946A849DC4CDDE3A4D0CB81629242FB1A5");
+	
+	BIGNUM *e = BN_new();
+        BN_hex2bn(&e,"010001");
+	
 	BIGNUM *d = BN_new();
-	BN_mod_inverse(d, e, phiN, ctx);
-	char* m = "The private key, d is: ";
-	printBN(m,d);
+        BN_hex2bn(&d,"74D806F9F3A62BAE331FFE3F0A68AFE35B3D2E4794148AACBC26AA381CD7D30D");
+	
+	BIGNUM *M = BN_new();
+	BN_hex2bn(&M,"4120746f702073656372657421");
+	
+	BIGNUM *c = BN_new();
+	BIGNUM *dc = BN_new();
+
+	// Encrypting the message M with the public key (e, n)
+	// The RSA formula for encryption is c = m^e (mod n), where c is the cipher text and e is the public key
+	BN_mod_exp(c, M, e, n, ctx);
+	char *msg = "The cipher text is: ";
+	printBN(msg, c);
+
+	// The RSA formula for decryption is c^d, where c is the cipher text and d is the private key
+	BN_mod_exp(dc, c, d, n, ctx);
+	char *msg2 = "The deciffered cipher text is: ";
+        printBN(msg2, dc);
 
     return 0;
 
