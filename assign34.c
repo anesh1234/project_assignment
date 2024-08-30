@@ -26,13 +26,30 @@ int main ()
 	BIGNUM *d = BN_new();
         BN_hex2bn(&d,"74D806F9F3A62BAE331FFE3F0A68AFE35B3D2E4794148AACBC26AA381CD7D30D");
 	
-	char *msg = "I owe you $2000.";
-	char *msg2 = "I owe you $3000.";
+	BIGNUM *s = BN_new();
+	BIGNUM *s2 = BN_new();
 
-	// The RSA formula for decryption is c^d, where c is the cipher text and d is the private key
-	BN_mod_exp(dc, C, d, n, ctx);
-	char *msg2 = "The deciffered cipher text is: ";
-        printBN(msg2, dc);
+	// m = "I owe you $2000." Translated to hex is "49206F776520796F752024323030302E"
+	// m2 = "I owe you $3000." Translated to hex is "49206F776520796F752024333030302E"
+	
+	BIGNUM *m = BN_new();
+	BN_hex2bn(&m,"49206F776520796F752024323030302E");
+	BIGNUM *m2 = BN_new();
+        BN_hex2bn(&m2,"49206F776520796F752024333030302E");
+	
+	char *msg1 = "The original m in hex is: ";
+	printBN(msg1, m);
+	char *msg2 = "The original m2 in hex is: ";
+        printBN(msg2, m2);
+
+	// Signing the messages
+	BN_mod_exp(s, m, d, n, ctx);
+	BN_mod_exp(s2, m2, d, n, ctx);
+
+	char *msg3 = "The signature of m is: ";
+        printBN(msg3, s);
+	char *msg4 = "The signature of m2 is: ";
+        printBN(msg4, s2);
 
     return 0;
 
